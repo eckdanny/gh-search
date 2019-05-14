@@ -3,12 +3,13 @@ import React, { FC, useRef } from 'react'
 export type BasicUserSearchFormProps<T = {}> = React.FormHTMLAttributes<
   HTMLFormElement
 > & {
-  /** Overloading the `onChange` callback to use for the search form control */
   onInputChange?: React.ChangeEventHandler<HTMLInputElement>
+  inputValue?: string
 } & T
 
 const BasicUserSearchForm: FC<BasicUserSearchFormProps> = ({
   onSubmit,
+  inputValue,
   onInputChange,
 }) => {
   const inputRef = useRef(null)
@@ -22,9 +23,14 @@ const BasicUserSearchForm: FC<BasicUserSearchFormProps> = ({
         placeholder="eckdanny"
         autoComplete="off"
         spellCheck={false}
+        value={inputValue}
         onChange={onInputChange}
       />
       <button type="submit">Search</button>
+      <div>
+        your query:
+        <code>{inputValue}</code>
+      </div>
     </form>
   )
 }

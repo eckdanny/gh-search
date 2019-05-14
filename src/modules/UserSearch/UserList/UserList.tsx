@@ -3,21 +3,22 @@ import UserCard from '../UserCard'
 import { IGitHubUser } from '../../../types'
 
 export type UserListProps<T = {}> = {
-  values?: IGitHubUser[]
-  // nothing here yet
+  /** Array of GitHub user objects */
+  values?: IGitHubUser[] | null
+  /** Whether or not a new list is currently being loaded */
+  isLoading?: boolean
 } & T
 
-const UserList: React.FC<UserListProps> = props => {
+const UserList: React.FC<UserListProps> = ({ values }) => {
+  if (values === null) return null
   return (
     <Fragment>
-      <div>MEH</div>
       <div>
-        {props.values &&
-          props.values.map(user => <UserCard key={user.id} user={user} />)}
+        {values && values.map(user => <UserCard key={user.id} user={user} />)}
       </div>
     </Fragment>
   )
-  return <pre>{JSON.stringify(props.values, null, 2)}</pre>
+  return <pre>{JSON.stringify(values, null, 2)}</pre>
 }
 
 export default UserList
