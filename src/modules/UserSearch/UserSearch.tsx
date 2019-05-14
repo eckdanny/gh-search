@@ -6,7 +6,6 @@ import {
   filter,
   debounceTime,
   distinctUntilChanged,
-  map,
   switchMap,
 } from 'rxjs/operators'
 
@@ -20,7 +19,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
 
   // const [basicQuery, setBasicQuery] = useState(null)
 
-  const [users, setUsers] = useState(null)
+  const [users, setUsers] = useState([])
 
   useEffect(() => {
     console.log('setup!')
@@ -41,7 +40,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       console.log('tear down')
       basicQuery$.complete()
     }
-  })
+  }, [])
 
   useEffect(() => {
     search$ = new Subject()
@@ -50,7 +49,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       console.log('tear down search$ subscriptions')
       search$.complete()
     }
-  })
+  }, [])
 
   return (
     <div>
@@ -60,11 +59,10 @@ const UserSearch: React.FC<UserSearchProps> = () => {
           search$.next()
         }}
         onInputChange={event => {
-          // console.log(event.target.value)
           basicQuery$.next(event.target.value)
         }}
       />
-      {/* <UserList values={users} /> */}
+      <UserList values={users} />
     </div>
   )
 }
