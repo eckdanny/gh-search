@@ -1,5 +1,7 @@
 import React from 'react'
+import Avatar from '../Avatar'
 import { IGitHubUser } from '../../../types'
+import Styles from './UserCard.module.css'
 
 export type UserCardProps<T = {}> = {
   user?: IGitHubUser
@@ -8,11 +10,11 @@ export type UserCardProps<T = {}> = {
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
   if (!user) return null
   return (
-    <div>
+    <div className={Styles.UserCard}>
       <div>{user.login}</div>
-      <img src={user.avatar_url} />
+      <Avatar src={user.avatar_url} />
       <a href={user.html_url}>Profile</a>
-      {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
+      <pre>{JSON.stringify(user, null, 2)}</pre>
     </div>
   )
 }

@@ -1,10 +1,11 @@
 import React from 'react'
 
 export type PagintionProps<T = {}> = {
-  // nothing here yet
+  current?: number
+  total?: number
 } & T
 
-const Pagination: React.FC<PagintionProps> = () => {
+const Pagination: React.FC<PagintionProps> = ({ current, total }) => {
   return (
     <nav aria-label="pagination">
       <ul className="pagination">
@@ -21,9 +22,7 @@ const Pagination: React.FC<PagintionProps> = () => {
           </a>
         </li>
         <li className="pagination__item">
-          <a className="pagination__link" href="#">
-            <span className="visuallyhidden">page </span>1
-          </a>
+          {current} of {total}
         </li>
         <li className="pagination__item pagination__item--next-page">
           <a
