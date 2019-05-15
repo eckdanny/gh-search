@@ -12,9 +12,9 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
   return (
     <div className={Styles.UserCard}>
       <div>{user.login}</div>
-      <Avatar src={user.avatar_url} />
+      <Avatar src={user.avatar_url} alt={user.login} />
       <a href={user.html_url}>Profile</a>
-      <pre>{JSON.stringify(user, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
     </div>
   )
 }

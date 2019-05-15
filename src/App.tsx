@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import UserSearch from './modules/UserSearch'
+import './App.css'
 
 const App: React.FC = () => {
   const [isEnabled, setEnabled] = useState(true)
@@ -9,7 +10,7 @@ const App: React.FC = () => {
         <h1>GitHub Search</h1>
       </div>
       <div role="main">
-        <div>
+        {/* <div>
           <label htmlFor="enable-feature">Enable?</label>
           <input
             type="checkbox"
@@ -20,7 +21,7 @@ const App: React.FC = () => {
               setEnabled(e.target.checked)
             }}
           />
-        </div>
+        </div> */}
         {isEnabled && <UserSearch />}
       </div>
     </div>
