@@ -1,0 +1,18 @@
+@import '../../scss/base';
+
+.UserCard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.AvatarContainer {
+  margin-right: map-get($spacers, 3);
+}
+
+.InfoContainer {
+  flex: 1;
+}
+
+.ActionContainer {
+}

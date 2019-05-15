@@ -1,6 +1,8 @@
 import React, { Fragment } from 'react'
+import cn from 'classnames'
 import { UserCard } from '../../../components'
 import { IGitHubUser } from '../../../types'
+import Styles from './UserList.module.scss'
 
 export type UserListProps<T = {}> = {
   /** Array of GitHub user objects */
@@ -12,11 +14,9 @@ export type UserListProps<T = {}> = {
 const UserList: React.FC<UserListProps> = ({ values }) => {
   if (values === null) return null
   return (
-    <Fragment>
-      <div>
-        {values && values.map(user => <UserCard key={user.id} user={user} />)}
-      </div>
-    </Fragment>
+    <div className={cn(Styles.UserList)}>
+      {values && values.map(user => <UserCard key={user.id} user={user} />)}
+    </div>
   )
   return <pre>{JSON.stringify(values, null, 2)}</pre>
 }
