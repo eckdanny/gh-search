@@ -1,4 +1,6 @@
 import React from 'react'
+import cn from 'classnames'
+import Styles from './Pagination.module.scss'
 
 export type PagintionProps<T = {}> = {
   current?: number
@@ -7,32 +9,26 @@ export type PagintionProps<T = {}> = {
 
 const Pagination: React.FC<PagintionProps> = ({ current, total }) => {
   return (
-    <nav aria-label="pagination">
-      <ul className="pagination">
-        <li className="pagination__item pagination__item--previous-page">
-          <a
-            className="pagination__link pagination__link--is-disabled"
-            href="#"
-            aria-disabled="true"
-          >
+    <nav className={cn(Styles.Nav)} aria-label="pagination">
+      <ul className={cn(Styles.List)}>
+        <li className={cn(Styles.Item, 'pagination__item--previous-page')}>
+          <a className={cn(Styles.Link)} href="#" aria-disabled="true">
             <span className="visuallyhidden">
               Previous
-              <span>page</span>
+              <span className="sr-only">page</span>
             </span>
           </a>
         </li>
-        <li className="pagination__item">
-          {current} of {total}
+        <li className={cn(Styles.Item)}>
+          <div className={cn(Styles.CurrentInfo)}>
+            {current} of {total}
+          </div>
         </li>
-        <li className="pagination__item pagination__item--next-page">
-          <a
-            className="pagination__link pagination__link--is-disabled"
-            href="#"
-            aria-disabled="true"
-          >
+        <li className={cn(Styles.Item, 'pagination__item--next-page')}>
+          <a className={cn(Styles.Link)} href="#" aria-disabled="true">
             <span className="visuallyhidden">
               Next
-              <span>page</span>
+              <span className="sr-only">page</span>
             </span>
           </a>
         </li>

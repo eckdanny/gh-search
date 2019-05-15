@@ -11,7 +11,7 @@ const Button: React.FC<ButtonProps> = props => (
     {...props}
     className={cn(props.className, {
       [Styles['btn']]: true,
-      [Styles['btn-secondary']]: true,
+      [Styles['btn-primary']]: true,
       [Styles['btn-sm']]: true,
     })}
   />
