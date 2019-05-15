@@ -1,6 +1,6 @@
 import React from 'react'
 import Avatar from '../Avatar'
-import { IGitHubUser } from '../../../types'
+import { IGitHubUser } from '../../types'
 import Styles from './UserCard.module.css'
 
 export type UserCardProps<T = {}> = {

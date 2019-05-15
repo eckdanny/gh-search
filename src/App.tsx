@@ -5,9 +5,16 @@ import './App.css'
 const App: React.FC = () => {
   const [isEnabled, setEnabled] = useState(true)
   return (
-    <div>
-      <div role="banner">
-        <h1>GitHub Search</h1>
+    <div className="container" style={{ maxWidth: '680px' }}>
+      <div
+        role="banner"
+        style={{
+          minHeight: '15vh',
+        }}
+        className="d-flex flex-column justify-content-center d-flex align-items-center"
+      >
+        <h1 className="mb-0">GitHub Username Search</h1>
+        <p className="lead font-italic">for searching usernames :P</p>
       </div>
       <div role="main">
         {/* <div>

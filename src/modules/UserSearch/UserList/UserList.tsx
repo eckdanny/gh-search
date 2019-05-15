@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import UserCard from '../UserCard'
+import { UserCard } from '../../../components'
 import { IGitHubUser } from '../../../types'
 
 export type UserListProps<T = {}> = {
