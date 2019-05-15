@@ -9,7 +9,11 @@ type ButtonProps<T = {}> = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 const Button: React.FC<ButtonProps> = props => (
   <button
     {...props}
-    className={cn(props.className, 'btn btn-primary', Styles.Button)}
+    className={cn(props.className, {
+      [Styles['btn']]: true,
+      [Styles['btn-secondary']]: true,
+      [Styles['btn-sm']]: true,
+    })}
   />
 )
 

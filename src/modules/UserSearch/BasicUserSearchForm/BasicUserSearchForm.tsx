@@ -27,28 +27,24 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
   onInputChange,
 }) => {
   return (
-    <div className="card mb-3">
-      <div className="card-body">
-        <form className="form-inline" onSubmit={onSubmit}>
-          <div className="form-group">
-            <label htmlFor="username-search-input">Username</label>
-            <Input
-              id="username-search-input"
-              className="form-control"
-              type="search"
-              placeholder="eckdanny"
-              autoComplete="off"
-              spellCheck={false}
-              value={inputValue}
-              onChange={onInputChange}
-            />
-          </div>
-          <Button type="submit" className="sr-only">
-            Search
-          </Button>
-        </form>
+    <form className="form-inline" onSubmit={onSubmit}>
+      <div className="form-group">
+        <label htmlFor="username-search-input">Username</label>
+        <Input
+          id="username-search-input"
+          className="form-control"
+          type="search"
+          placeholder="eckdanny"
+          autoComplete="off"
+          spellCheck={false}
+          value={inputValue}
+          onChange={onInputChange}
+        />
       </div>
-    </div>
+      <Button type="submit" className="sr-only">
+        Search
+      </Button>
+    </form>
   )
 }
 

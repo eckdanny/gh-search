@@ -1,6 +1,6 @@
 import React from 'react'
 import cn from 'classnames'
-import Styles from './Avatar.module.css'
+import Styles from './Avatar.module.scss'
 
 type AvatarProps<T = {}> = React.ImgHTMLAttributes<HTMLImageElement> & {
   href?: string

@@ -1,21 +1,27 @@
 import React, { useState } from 'react'
+import { Banner } from './components'
 import UserSearch from './modules/UserSearch'
+
 import './App.css'
 
 const App: React.FC = () => {
   const [isEnabled, setEnabled] = useState(true)
   return (
     <div className="container" style={{ maxWidth: '680px' }}>
-      <div
+      {/* <div
         role="banner"
         style={{
-          minHeight: '15vh',
+          minHeight: '10vh',
         }}
         className="d-flex flex-column justify-content-center d-flex align-items-center"
       >
         <h1 className="mb-0">GitHub Username Search</h1>
         <p className="lead font-italic">for searching usernames :P</p>
-      </div>
+      </div> */}
+      <Banner>
+        <h1 className="mb-0">GitHub Username Search</h1>
+        <p className="lead font-italic">for searching usernames :P</p>
+      </Banner>
       <div role="main">
         {/* <div>
           <label htmlFor="enable-feature">Enable?</label>
