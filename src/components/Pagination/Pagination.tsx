@@ -4,7 +4,8 @@ import Styles from './Pagination.module.scss'
 
 export type PagintionProps<T = {}> = {
   current?: number
-  total?: number
+  total: number
+  size?: number
   isDisabledNext?: boolean
   isDisabledPrev?: boolean
   onClickNext?: React.EventHandler<React.SyntheticEvent<HTMLButtonElement>>
@@ -13,16 +14,25 @@ export type PagintionProps<T = {}> = {
 
 const Pagination: React.FC<PagintionProps> = ({
   current,
+  size,
   total,
   isDisabledNext,
   isDisabledPrev,
   onClickPrev,
   onClickNext,
 }) => {
+  if (!size || !total) {
+    console.log({ size, total })
+    return null
+  }
   return (
     <nav className={cn(Styles.nav)} aria-label="pagination">
       <ul className={cn(Styles['pagination'])}>
-        <li className={cn(Styles['page-item'], Styles['disabled'])}>
+        <li
+          className={cn(Styles['page-item'], {
+            [Styles['disabled']]: isDisabledPrev,
+          })}
+        >
           <button
             className={cn(Styles['page-link'])}
             disabled={isDisabledPrev}
@@ -36,10 +46,14 @@ const Pagination: React.FC<PagintionProps> = ({
         </li>
         <li className={cn(Styles['page-item'])}>
           <div className={cn(Styles['page-current-info'])}>
-            {current} of {total}
+            {current} of {Math.ceil(total / size)}
           </div>
         </li>
-        <li className={cn(Styles['page-item'])}>
+        <li
+          className={cn(Styles['page-item'], {
+            [Styles['disabled']]: isDisabledNext,
+          })}
+        >
           <button
             className={cn(Styles['page-link'])}
             disabled={isDisabledNext}

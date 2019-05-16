@@ -19,11 +19,11 @@ export type UserSearchProps<T = {}> = {
 } & T
 
 const UserSearch: React.FC<UserSearchProps> = ({ pageSize }) => {
-  const [searchService] = useState(new GitHubUserSearch().init())
+  const [searchService] = useState(new GitHubUserSearch())
 
   const [state, dispatch] = useReducer(userSearchReducer, {
     page: 1,
-    size: pageSize || 10,
+    size: 10,
     query: '',
     isLoading: false,
     total: null,
@@ -43,7 +43,14 @@ const UserSearch: React.FC<UserSearchProps> = ({ pageSize }) => {
   }, [state.query, state.page, state.size])
 
   // hack: ensure subject$.complete() in case not GC'd
-  useEffect(() => () => searchService.destroy(), [])
+  useEffect(() => {
+    searchService.init({
+      query: state.query,
+      page: state.page,
+      size: state.page,
+    })
+    return () => searchService.destroy()
+  }, [])
 
   return (
     <div>
@@ -60,13 +67,13 @@ const UserSearch: React.FC<UserSearchProps> = ({ pageSize }) => {
       {!state.isLoading && state.items && state.total && (
         <Fragment>
           <UserList users={state.items} total={state.total} />
-          <Pagination
-            {...selectPaginationProps(state)}
-            onClickNext={() => dispatch(incrementPage())}
-            onClickPrev={() => dispatch(decrementPage())}
-          />
         </Fragment>
       )}
+      <Pagination
+        {...selectPaginationProps(state)}
+        onClickNext={() => dispatch(incrementPage())}
+        onClickPrev={() => dispatch(decrementPage())}
+      />
     </div>
   )
 }
@@ -78,14 +85,17 @@ UserSearch.defaultProps = {
 }
 
 //
-//
+// Helpers
 //
 
 function selectPaginationProps(state: UserSearchState) {
   return {
     total: state.total || 0,
     current: state.page,
-    isDisabledPrev: false,
-    isDisabledNext: false,
+    size: state.size,
+    isDisabledPrev: state.page < 2 || state.isLoading,
+    isDisabledNext:
+      !state.total || state.page >= Math.ceil(state.total / state.size),
+    isLoading: state.isLoading,
   }
 }
