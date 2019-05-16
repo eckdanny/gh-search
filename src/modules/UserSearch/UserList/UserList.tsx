@@ -12,7 +12,8 @@ export type UserListProps<T = {}> = {
 } & T
 
 const UserList: React.FC<UserListProps> = ({ values }) => {
-  if (values === null) return null
+  if (!values) return null
+  if (!values.length) return <div>Nope, didn't find anything!</div>
   return (
     <div className={cn(Styles.UserList)}>
       {values && values.map(user => <UserCard key={user.id} user={user} />)}

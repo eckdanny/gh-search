@@ -17,7 +17,7 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
   className,
 }) => {
   return (
-    <form className={cn(className, 'form-inline')} onSubmit={onSubmit}>
+    <form className={cn(className)} onSubmit={onSubmit}>
       <div className="form-group">
         <label className="mr-2" htmlFor="username-search-input">
           Username
@@ -32,9 +32,6 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
           value={inputValue}
           onChange={onInputChange}
         />
-        <div className="spinner-border spinner-border-sm" role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
       </div>
       <Button type="submit" className="sr-only">
         Search

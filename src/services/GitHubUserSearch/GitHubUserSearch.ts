@@ -55,18 +55,17 @@ class GitHubUserSearchService {
   init() {
     this.subject$
       .pipe(
-        // tap(val => dispatch({ type: 'CHANGE_QUERY', payload: val })),
-        tap(this.onNext),
         filter(
           ({ query }) => query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
         ),
         debounceTime(DEBOUNCE_TIME),
         distinctUntilChanged(),
-        // tap(() => dispatch({ type: 'FETCH_START' })),
-        switchMap(req =>
-          req ? from(search(req)) : from(Promise.resolve({ items: [] }))
-        )
-        // tap(() => dispatch({ type: 'FETCH_SUCCESS' }))
+        tap(this.onNext),
+        switchMap(req => {
+          return req.query
+            ? from(search(req))
+            : from(Promise.resolve({ items: null, page: 1, size: 10 }))
+        })
         // handle Errors?
       )
       .subscribe(res => {
@@ -76,7 +75,6 @@ class GitHubUserSearchService {
   }
 
   fetch(params: GitHubUserServiceRequest) {
-    console.log('FETCH!!!')
     this.subject$.next({
       query: params.query || '',
       page: params.page || 1,

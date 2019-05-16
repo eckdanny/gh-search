@@ -39,15 +39,9 @@ const UserSearch: React.FC<UserSearchProps> = () => {
 
   const [ghus] = useState(() => {
     return new GitHubUserSearch()
-      .next(NEXT => {
-        console.log({ NEXT })
-        dispatch({ type: 'FETCH_START' })
-      })
+      .next(NEXT => dispatch({ type: 'FETCH_START' }))
       .error(ERR => console.log({ ERR }))
-      .success(VAL => {
-        console.log({ VAL })
-        dispatch({ type: 'FETCH_SUCCESS', payload: VAL })
-      })
+      .success(VAL => dispatch({ type: 'FETCH_SUCCESS', payload: VAL }))
       .init()
     // return () => ghus.destroy()
   })
@@ -65,14 +59,24 @@ const UserSearch: React.FC<UserSearchProps> = () => {
           })
         }}
       />
-      <p>{pagination.q}</p>
-      {/* {data && data.items && ( */}
       <Fragment>
-        {/* <UserList isLoading={isLoading} values={data.items} /> */}
-        <UserList isLoading={isLoading} values={pagination.items} />
-        <Pagination isLoading={isLoading} total={pagination.itemTotal} />
+        {pagination.isLoading && (
+          <div className="text-center my-5">
+            <div
+              className="spinner-border text-primary spinner-border-lg"
+              role="status"
+            >
+              <span className="sr-only">Loading...</span>
+            </div>
+          </div>
+        )}
+        {!pagination.isLoading && pagination.items && (
+          <Fragment>
+            <UserList isLoading={isLoading} values={pagination.items} />
+            <Pagination isLoading={isLoading} total={pagination.itemTotal} />
+          </Fragment>
+        )}
       </Fragment>
-      {/* )} */}
     </div>
   )
 }
@@ -123,6 +127,7 @@ function paginationReducer(state: pagerState, action: Action): pagerState {
       return {
         ...state,
         isLoading: true,
+        items: null,
       }
     case 'FETCH_SUCCESS':
       console.log(action.payload)
