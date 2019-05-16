@@ -17,12 +17,12 @@ const Pagination: React.FC<PagintionProps> = ({ current, total }) => {
     <nav className={cn(Styles.nav)} aria-label="pagination">
       <ul className={cn(Styles['pagination'])}>
         <li className={cn(Styles['page-item'], Styles['disabled'])}>
-          <a className={cn(Styles['page-link'])} href="#" aria-disabled="true">
+          <button className={cn(Styles['page-link'])} disabled={true}>
             <span>
               Previous
               <span className="sr-only">page</span>
             </span>
-          </a>
+          </button>
         </li>
         <li className={cn(Styles['page-item'])}>
           <div className={cn(Styles['page-current-info'])}>
@@ -30,12 +30,12 @@ const Pagination: React.FC<PagintionProps> = ({ current, total }) => {
           </div>
         </li>
         <li className={cn(Styles['page-item'])}>
-          <a className={cn(Styles['page-link'])} href="#" aria-disabled="true">
+          <button className={cn(Styles['page-link'])}>
             <span>
               Next
               <span className="sr-only">page</span>
             </span>
-          </a>
+          </button>
         </li>
       </ul>
     </nav>
