@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import cn from 'classnames'
 import { UserCard } from '../../../components'
 import { IGitHubUser } from '../../../types'
@@ -19,7 +19,6 @@ const UserList: React.FC<UserListProps> = ({ values }) => {
       {values && values.map(user => <UserCard key={user.id} user={user} />)}
     </div>
   )
-  return <pre>{JSON.stringify(values, null, 2)}</pre>
 }
 
 export default UserList

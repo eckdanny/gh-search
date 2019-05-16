@@ -1,5 +1,4 @@
 import React from 'react'
-import cn from 'classnames'
 
 type InputProps<T = {}> = React.InputHTMLAttributes<HTMLInputElement> & {
   // nothing here yet

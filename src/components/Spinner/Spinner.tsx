@@ -6,16 +6,9 @@ type SpinnerProps<T = {}> = React.HTMLAttributes<HTMLDivElement> & {
   // nothing here yet
 } & T
 
-const Spinner: React.FC<SpinnerProps> = ({}) => {
+const Spinner: React.FC<SpinnerProps> = ({ className }) => {
   return (
-    <div
-      className={cn(
-        'text-primary',
-        [Styles['spinner-border']],
-        [Styles['spinner-border-lg']]
-      )}
-      role="status"
-    >
+    <div className={cn(className, [Styles['spinner-border']])} role="status">
       <span className="sr-only">Loading...</span>
     </div>
   )

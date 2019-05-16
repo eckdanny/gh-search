@@ -1,12 +1,4 @@
-import React, { useEffect, useState, useReducer, Fragment } from 'react'
-import { BehaviorSubject, from } from 'rxjs'
-import {
-  tap,
-  filter,
-  debounceTime,
-  distinctUntilChanged,
-  switchMap,
-} from 'rxjs/operators'
+import React, { useState, useReducer, Fragment } from 'react'
 import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
 import { Pagination, Spinner } from '../../components'
@@ -15,12 +7,9 @@ import { IGitHubUserSearchResponse } from '../../types'
 
 // private module constants
 const PAGE_SIZE = 10
-const DEBOUNCE_TIME = 250
-const MIN_SEARCH_CHAR_LENGTH = 3
 
 export type UserSearchProps<T = {}> = {
   query?: string
-  query$?: BehaviorSubject<string>
   data?: {
     items?: any[]
     total_count?: number
@@ -29,9 +18,7 @@ export type UserSearchProps<T = {}> = {
 } & T
 
 const UserSearch: React.FC<UserSearchProps> = () => {
-  const [query, setQuery] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [data, setData] = useState<UserSearchProps['data'] | null>(null)
   const [pagination, dispatch] = useReducer(paginationReducer, {
     pageSize: PAGE_SIZE,
     items: null,
@@ -39,11 +26,10 @@ const UserSearch: React.FC<UserSearchProps> = () => {
 
   const [ghus] = useState(() => {
     return new GitHubUserSearch()
-      .next(NEXT => dispatch({ type: 'FETCH_START' }))
+      .next(() => dispatch({ type: 'FETCH_START' }))
       .error(ERR => console.log({ ERR }))
       .success(VAL => dispatch({ type: 'FETCH_SUCCESS', payload: VAL }))
       .init()
-    // return () => ghus.destroy()
   })
 
   return (
@@ -62,7 +48,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       <Fragment>
         {pagination.isLoading && (
           <div className="text-center my-5">
-            <Spinner />
+            <Spinner className="text-primary" />
           </div>
         )}
         {!pagination.isLoading && pagination.items && (
@@ -86,14 +72,6 @@ type searchArgs = {
   query: string
   page?: number
   pageSize?: number
-}
-
-async function search(args: searchArgs) {
-  const { query, page, pageSize } = args
-  const data = await fetch(
-    `https://api.github.com/search/users?q=${query}&page=${page}&per_page=${pageSize}`
-  )
-  return await data.json()
 }
 
 type Action =
