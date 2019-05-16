@@ -1,12 +1,13 @@
 import { Subject, from } from 'rxjs'
 import {
-  tap,
-  filter,
   debounceTime,
   distinctUntilChanged,
+  filter,
+  map,
   switchMap,
+  tap,
 } from 'rxjs/operators'
-// import { IGitHubUserSearchResponse } from '../../types'
+import { IGitHubUserSearchResponse } from '../../types'
 
 // private module constants
 const PAGE_SIZE = 10
@@ -17,6 +18,9 @@ type GitHubUserServiceRequest = {
   query: string
   page?: number
   size?: number
+  onStart?: (val: any) => void
+  onSuccess?: (res: IGitHubUserSearchResponse) => void
+  onError?: (err: any) => void
 }
 
 // type GitHubUserServiceResponse = {}
@@ -24,66 +28,72 @@ type GitHubUserServiceRequest = {
 const noop = () => {}
 
 class GitHubUserSearchService {
-  private onNext: (val: GitHubUserServiceRequest) => void
-  private onSuccess: (val: any) => void
-  private onError: (val: any) => void
-  private subject$: Subject<GitHubUserServiceRequest>
+  private subject$ = new Subject<GitHubUserServiceRequest>()
 
-  constructor() {
-    this.subject$ = new Subject()
-    this.onNext = noop
-    this.onSuccess = noop
-    this.onError = noop
-  }
+  // constructor() {
+  //   this.subject$ = new Subject()
 
-  next(onNext: (val: any) => void) {
-    this.onNext = onNext
-    return this
-  }
-
-  error(onError: (err: any) => any) {
-    this.onError = onError
-    return this
-  }
-
-  success(onSuccess: (val: any) => void) {
-    this.onSuccess = onSuccess
-    return this
-  }
+  //   this.subject$
+  //     .pipe(
+  //       filter(
+  //         ({ query }) => query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
+  //       ),
+  //       debounceTime(DEBOUNCE_TIME),
+  //       distinctUntilChanged(),
+  //       tap(this.onNext),
+  //       switchMap(req => {
+  //         return req.query
+  //           ? from(search(req))
+  //           : from(Promise.resolve({ items: null, page: 1, size: 10 }))
+  //       })
+  //       // handle Errors?
+  //     )
+  //     .subscribe(res => {
+  //       this.onSuccess(res)
+  //     })
+  // }
 
   init(initialValue?: GitHubUserServiceRequest) {
     this.subject$
       .pipe(
-        filter(
-          ({ query }) => query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
-        ),
+        filter(({ query }) => filterQueryByMinLength(query)),
         debounceTime(DEBOUNCE_TIME),
         distinctUntilChanged(),
-        tap(this.onNext),
+        tap(d => d.onStart && d.onStart(d)),
         switchMap(req => {
           return req.query
-            ? from(search(req))
-            : from(Promise.resolve({ items: null, page: 1, size: 10 }))
-        })
+            ? from(search(req)).pipe(
+                map(res => {
+                  return {
+                    ...req,
+                    res,
+                  }
+                })
+              )
+            : from(Promise.resolve({ items: null, page: 1, size: 10 })).pipe(
+                map(res => {
+                  return {
+                    ...req,
+                    res,
+                  }
+                })
+              )
+        }),
+        tap(d => d.onSuccess && d.onSuccess(d.res))
         // handle Errors?
       )
-      .subscribe(res => {
-        this.onSuccess(res)
-      })
+      .subscribe()
     if (initialValue) this.subject$.next(initialValue)
     return this
   }
 
   fetch(params: GitHubUserServiceRequest) {
-    this.subject$.next({
-      query: params.query || '',
-      page: params.page || 1,
-      size: params.size || PAGE_SIZE,
-    })
-  }
-
-  send() {
-    this.subject$.subscribe()
+    // this.subject$.next({
+    //   query: params.query || '',
+    //   page: params.page || 1,
+    //   size: params.size || PAGE_SIZE,
+    // })
+    this.subject$.next(params)
   }
 
   destroy() {
@@ -96,6 +106,10 @@ export default GitHubUserSearchService
 //
 // Helpers
 //
+
+function filterQueryByMinLength(query: string) {
+  return query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
+}
 
 async function search(args: GitHubUserServiceRequest) {
   const { query, page, size } = args
