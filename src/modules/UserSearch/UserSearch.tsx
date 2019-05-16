@@ -18,7 +18,6 @@ export type UserSearchProps<T = {}> = {
 } & T
 
 const UserSearch: React.FC<UserSearchProps> = () => {
-  const [isLoading, setIsLoading] = useState(false)
   const [pagination, dispatch] = useReducer(paginationReducer, {
     pageSize: PAGE_SIZE,
     items: null,
@@ -30,12 +29,17 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       .error(ERR => console.log({ ERR }))
       .success(VAL => dispatch({ type: 'FETCH_SUCCESS', payload: VAL }))
       .init()
+    // .init({
+    //   page: pagination.currentPage,
+    //   size: pagination.pageSize,
+    //   query: pagination.query,
+    // })
   })
 
   return (
     <div>
       <BasicUserSearchForm
-        inputValue={pagination.q}
+        inputValue={pagination.query}
         isLoading={pagination.isLoading}
         onInputChange={event => {
           ghus.fetch({
@@ -53,8 +57,14 @@ const UserSearch: React.FC<UserSearchProps> = () => {
         )}
         {!pagination.isLoading && pagination.items && (
           <Fragment>
-            <UserList isLoading={isLoading} values={pagination.items} />
-            <Pagination isLoading={isLoading} total={pagination.itemTotal} />
+            <UserList
+              isLoading={pagination.isLoading}
+              values={pagination.items}
+            />
+            <Pagination
+              isLoading={pagination.isLoading}
+              total={pagination.itemTotal}
+            />
           </Fragment>
         )}
       </Fragment>
@@ -83,7 +93,7 @@ type Action =
   | { type: 'GOT_RESULTS' }
 
 type pagerState = {
-  q?: string
+  query?: string
   isLoading?: boolean
   itemTotal?: number
   currentPage?: number
@@ -113,7 +123,7 @@ function paginationReducer(state: pagerState, action: Action): pagerState {
     case 'CHANGE_QUERY':
       return {
         ...state,
-        q: action.payload,
+        query: action.payload,
       }
     default:
       throw new Error()

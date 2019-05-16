@@ -1,4 +1,4 @@
-import { BehaviorSubject, Subject, from } from 'rxjs'
+import { Subject, from } from 'rxjs'
 import {
   tap,
   filter,
@@ -6,7 +6,7 @@ import {
   distinctUntilChanged,
   switchMap,
 } from 'rxjs/operators'
-import { IGitHubUserSearchResponse } from '../../types'
+// import { IGitHubUserSearchResponse } from '../../types'
 
 // private module constants
 const PAGE_SIZE = 10
@@ -51,8 +51,7 @@ class GitHubUserSearchService {
     return this
   }
 
-  // initialValue???
-  init() {
+  init(initialValue?: GitHubUserServiceRequest) {
     this.subject$
       .pipe(
         filter(
@@ -71,6 +70,7 @@ class GitHubUserSearchService {
       .subscribe(res => {
         this.onSuccess(res)
       })
+    if (initialValue) this.subject$.next(initialValue)
     return this
   }
 
