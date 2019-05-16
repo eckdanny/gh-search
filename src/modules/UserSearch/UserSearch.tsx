@@ -9,7 +9,7 @@ import {
 } from 'rxjs/operators'
 import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
-import Pagination from '../../components/Pagination'
+import { Pagination, Spinner } from '../../components'
 import { GitHubUserSearch } from '../../services'
 import { IGitHubUserSearchResponse } from '../../types'
 
@@ -62,12 +62,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       <Fragment>
         {pagination.isLoading && (
           <div className="text-center my-5">
-            <div
-              className="spinner-border text-primary spinner-border-lg"
-              role="status"
-            >
-              <span className="sr-only">Loading...</span>
-            </div>
+            <Spinner />
           </div>
         )}
         {!pagination.isLoading && pagination.items && (
