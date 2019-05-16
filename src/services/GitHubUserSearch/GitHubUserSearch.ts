@@ -9,7 +9,6 @@ import {
 } from 'rxjs/operators'
 import { IGitHubUserSearchResponse } from '../../types'
 
-// private module constants
 const DEBOUNCE_TIME = 250
 const MIN_SEARCH_CHAR_LENGTH = 3
 
@@ -22,35 +21,10 @@ type GitHubUserServiceRequest = {
   onError?: (err: any) => void
 }
 
-// type GitHubUserServiceResponse = {}
-
 const noop = () => {}
 
 class GitHubUserSearchService {
   private subject$ = new Subject<GitHubUserServiceRequest>()
-
-  // constructor() {
-  //   this.subject$ = new Subject()
-
-  //   this.subject$
-  //     .pipe(
-  //       filter(
-  //         ({ query }) => query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
-  //       ),
-  //       debounceTime(DEBOUNCE_TIME),
-  //       distinctUntilChanged(),
-  //       tap(this.onNext),
-  //       switchMap(req => {
-  //         return req.query
-  //           ? from(search(req))
-  //           : from(Promise.resolve({ items: null, page: 1, size: 10 }))
-  //       })
-  //       // handle Errors?
-  //     )
-  //     .subscribe(res => {
-  //       this.onSuccess(res)
-  //     })
-  // }
 
   init(initialValue?: GitHubUserServiceRequest) {
     this.subject$
@@ -58,8 +32,10 @@ class GitHubUserSearchService {
         filter(({ query }) => filterQueryByMinLength(query)),
         debounceTime(DEBOUNCE_TIME),
         distinctUntilChanged(),
+        // map(d => ({ ...d, page: 1 })),
         tap(d => d.onStart && d.onStart(d)),
         switchMap(req => {
+          // TODO: handle non-HTTP 200's here
           return req.query
             ? from(search(req)).pipe(
                 map(res => {
@@ -79,7 +55,6 @@ class GitHubUserSearchService {
               )
         }),
         tap(d => d.onSuccess && d.onSuccess(d.res))
-        // handle Errors?
       )
       .subscribe()
     if (initialValue) this.subject$.next(initialValue)
@@ -87,11 +62,6 @@ class GitHubUserSearchService {
   }
 
   fetch(params: GitHubUserServiceRequest) {
-    // this.subject$.next({
-    //   query: params.query || '',
-    //   page: params.page || 1,
-    //   size: params.size || PAGE_SIZE,
-    // })
     this.subject$.next(params)
   }
 

@@ -106,7 +106,7 @@ export function userSearchReducer(
     case DECR_PAGE:
       return { ...state, page: state.page - 1 }
     case CHANGE_QUERY:
-      return { ...state, query: action.payload }
+      return { ...state, query: action.payload, page: 1 }
     case FETCH: {
       if (action.error) {
         return {
