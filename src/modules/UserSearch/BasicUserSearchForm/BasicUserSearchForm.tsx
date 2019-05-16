@@ -6,20 +6,8 @@ export type BasicUserSearchFormProps<T = {}> = React.FormHTMLAttributes<
 > & {
   onInputChange?: React.ChangeEventHandler<HTMLInputElement>
   inputValue?: string
+  isLoading?: boolean
 } & T
-
-/*
-
-<div class="card" style="width: 18rem;">
-  <img src="..." class="card-img-top" alt="...">
-  <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
-  </div>
-</div>
-
-*/
 
 const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
   onSubmit,
@@ -29,7 +17,9 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
   return (
     <form className="form-inline" onSubmit={onSubmit}>
       <div className="form-group">
-        <label htmlFor="username-search-input">Username</label>
+        <label className="mr-2" htmlFor="username-search-input">
+          Username
+        </label>
         <Input
           id="username-search-input"
           className="form-control"
@@ -40,12 +30,19 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
           value={inputValue}
           onChange={onInputChange}
         />
+        <div className="spinner-border spinner-border-sm" role="status">
+          <span className="sr-only">Loading...</span>
+        </div>
       </div>
       <Button type="submit" className="sr-only">
         Search
       </Button>
     </form>
   )
+}
+
+BasicUserSearchForm.defaultProps = {
+  onSubmit: event => event.preventDefault(),
 }
 
 export default BasicUserSearchForm

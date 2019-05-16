@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useReducer } from 'react'
+import React, { useEffect, useState, useReducer, Fragment } from 'react'
 import { BehaviorSubject, from } from 'rxjs'
 import {
+  tap,
   filter,
   debounceTime,
   distinctUntilChanged,
@@ -9,6 +10,11 @@ import {
 import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
 import Pagination from '../../components/Pagination'
+
+// private module constants
+const PAGE_SIZE = 10
+const DEBOUNCE_TIME = 250
+const MIN_SEARCH_CHAR_LENGTH = 3
 
 export type UserSearchProps<T = {}> = {
   query?: string
@@ -21,56 +27,61 @@ export type UserSearchProps<T = {}> = {
 } & T
 
 const UserSearch: React.FC<UserSearchProps> = () => {
-  const PAGE_SIZE = 10
-
   const [query, setQuery] = useState('')
-  const [query$] = useState(new BehaviorSubject(''))
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState<UserSearchProps['data'] | null>(null)
   const [pagination, dispatch] = useReducer(paginationReducer, {
-    pageSize: 10,
-    current: 1,
+    pageSize: PAGE_SIZE,
   })
 
+  const [_query$] = useState(new BehaviorSubject(''))
   useEffect(() => {
-    const subscription = query$.subscribe(setQuery)
-    return () => subscription.unsubscribe()
-  }, [])
-
-  useEffect(() => {
-    const service = query$
+    const subscription = _query$.subscribe(setQuery)
+    const service = _query$
       .pipe(
-        filter(q => q.length >= 3 || !q.length),
-        debounceTime(250),
+        tap(val => dispatch({ type: 'CHANGE_QUERY', payload: val })),
+        filter(q => q.length >= MIN_SEARCH_CHAR_LENGTH || !q.length),
+        debounceTime(DEBOUNCE_TIME),
         distinctUntilChanged(),
+        tap(() => dispatch({ type: 'FETCH_START' })),
         switchMap(d =>
           d
             ? from(
                 search({
                   query: d,
                   pageSize: pagination.pageSize,
-                  page: pagination.current,
+                  page: pagination.currentPage,
                 })
               )
             : from(Promise.resolve({ items: [] }))
-        )
+        ),
+        tap(() => dispatch({ type: 'FETCH_SUCCESS' }))
+        // handle Errors?
       )
-      .subscribe(res => setData(res))
-    return () => service.unsubscribe()
+      .subscribe(res => {
+        // dispatch here
+        setData(res)
+      })
+    return () => {
+      subscription.unsubscribe()
+      service.unsubscribe()
+    }
   }, [])
 
   return (
     <div>
       <BasicUserSearchForm
         inputValue={query}
-        onSubmit={event => {
-          event.preventDefault()
-          console.log('you submitted the form')
-        }}
-        onInputChange={event => query$.next(event.target.value)}
+        isLoading={pagination.isLoading}
+        onInputChange={event => _query$.next(event.target.value)}
       />
-      <UserList isLoading={isLoading} values={data && data.items} />
-      <Pagination current={pagination.current} total={pagination.total} />
+      <p>{pagination.q}</p>
+      {data && data.items && (
+        <Fragment>
+          <UserList isLoading={isLoading} values={data.items} />
+          <Pagination isLoading={isLoading} total={pagination.itemTotal} />
+        </Fragment>
+      )}
     </div>
   )
 }
@@ -81,7 +92,13 @@ export default UserSearch
 // Helpers
 //
 
-async function search(args: { query: string; page: number; pageSize: number }) {
+type searchArgs = {
+  query: string
+  page?: number
+  pageSize?: number
+}
+
+async function search(args: searchArgs) {
   const { query, page, pageSize } = args
   const data = await fetch(
     `https://api.github.com/search/users?q=${query}&page=${page}&per_page=${pageSize}`
@@ -90,22 +107,41 @@ async function search(args: { query: string; page: number; pageSize: number }) {
 }
 
 type Action =
-  | { type: 'SET_ONE'; payload: string }
-  | { type: 'SET_TWO'; payload: number }
+  | { type: 'INCR_PAGE' }
+  | { type: 'DECR_PAGE' }
+  | { type: 'CHANGE_QUERY'; payload: string }
+  | { type: 'FETCH_START' }
+  | { type: 'FETCH_SUCCESS' }
+  | { type: 'GOT_RESULTS' }
 
 type pagerState = {
-  current?: number
-  total?: number
+  q?: string
+  isLoading?: boolean
+  itemTotal?: number
+  currentPage?: number
   pageSize: number
 }
 
-// reducer(state: AppState, action: Action): AppState {
 function paginationReducer(state: pagerState, action: Action) {
   switch (action.type) {
-    case 'SET_ONE':
-      return { ...state, current: 1 }
-    case 'SET_TWO':
-      return { ...state, current: 2 }
+    case 'INCR_PAGE':
+    case 'DECR_PAGE':
+      return state
+    case 'FETCH_START':
+      return {
+        ...state,
+        isLoading: true,
+      }
+    case 'FETCH_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+      }
+    case 'CHANGE_QUERY':
+      return {
+        ...state,
+        q: action.payload,
+      }
     default:
       throw new Error()
   }

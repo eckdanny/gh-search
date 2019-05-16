@@ -1,32 +1,14 @@
 @import '../../scss/base';
 @import '~bootstrap/scss/pagination';
 
-.Nav {
+.nav {
   display: flex;
   justify-content: space-around;
 }
 
-.List {
-  @extend .pagination;
-}
-
-.Item {
-  @extend .page-item;
-}
-
-.CurrentInfo {
+.page-current-info {
   @extend .page-link;
   &:hover {
     background-color: $pagination-bg;
   }
-}
-
-.Link {
-  @extend .page-link;
-}
-
-.ItemPrevious {
-}
-
-.ItemNext {
 }
