@@ -6,6 +6,7 @@ export type PagintionProps<T = {}> = {
   current?: number
   total: number
   size?: number
+  isLoading?: boolean
   isDisabledNext?: boolean
   isDisabledPrev?: boolean
   onClickNext?: React.EventHandler<React.SyntheticEvent<HTMLButtonElement>>

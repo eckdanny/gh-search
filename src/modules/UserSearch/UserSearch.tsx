@@ -64,11 +64,11 @@ const UserSearch: React.FC<UserSearchProps> = ({ pageSize }) => {
           <Spinner className="text-primary" />
         </div>
       )}
-      {!state.isLoading && state.items && state.total && (
-        <Fragment>
-          <UserList users={state.items} total={state.total} />
-        </Fragment>
-      )}
+      <UserList
+        isLoading={state.isLoading}
+        users={state.items}
+        total={state.total as number}
+      />
       <Pagination
         {...selectPaginationProps(state)}
         onClickNext={() => dispatch(incrementPage())}

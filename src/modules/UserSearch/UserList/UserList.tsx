@@ -9,6 +9,7 @@ export type UserListProps<T = {}> = {
   users: IGitHubUser[] | null
   /**  */
   total: number
+  isLoading?: boolean
 } & T
 
 const UserList: React.FC<UserListProps> = ({ users, total }) => {
