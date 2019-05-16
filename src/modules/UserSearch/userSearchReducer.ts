@@ -2,7 +2,7 @@ import { IGitHubUserSearchResponse } from '../../types'
 
 // State
 
-interface UserSearchState {
+export interface UserSearchState {
   page: number
   size: number
   query: string

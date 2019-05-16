@@ -3,33 +3,27 @@ import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
 import { Pagination, Spinner } from '../../components'
 import { GitHubUserSearch } from '../../services'
-import { IGitHubUserSearchResponse } from '../../types'
 import {
   userSearchReducer,
   changeQuery,
   fetchStart,
   fetchSuccess,
   fetchError,
+  UserSearchState,
+  incrementPage,
+  decrementPage,
 } from './userSearchReducer'
 
-// private module constants
-const PAGE_SIZE = 10
-
 export type UserSearchProps<T = {}> = {
-  query?: string
-  data?: {
-    items?: any[]
-    total_count?: number
-    incomplete_results?: boolean
-  }
+  pageSize?: number
 } & T
 
-const UserSearch: React.FC<UserSearchProps> = () => {
+const UserSearch: React.FC<UserSearchProps> = ({ pageSize }) => {
   const [searchService] = useState(new GitHubUserSearch().init())
 
   const [state, dispatch] = useReducer(userSearchReducer, {
     page: 1,
-    size: 10,
+    size: pageSize || 10,
     query: '',
     isLoading: false,
     total: null,
@@ -66,7 +60,11 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       {!state.isLoading && state.items && state.total && (
         <Fragment>
           <UserList users={state.items} total={state.total} />
-          <Pagination total={state.total} />
+          <Pagination
+            {...selectPaginationProps(state)}
+            onClickNext={() => dispatch(incrementPage())}
+            onClickPrev={() => dispatch(decrementPage())}
+          />
         </Fragment>
       )}
     </div>
@@ -75,58 +73,19 @@ const UserSearch: React.FC<UserSearchProps> = () => {
 
 export default UserSearch
 
+UserSearch.defaultProps = {
+  pageSize: 10,
+}
+
 //
-// Helpers
+//
 //
 
-// type searchArgs = {
-//   query: string
-//   page?: number
-//   pageSize?: number
-// }
-
-// type Action =
-//   | { type: 'INCR_PAGE' }
-//   | { type: 'DECR_PAGE' }
-//   | { type: 'CHANGE_QUERY'; payload: string }
-//   | { type: 'FETCH_START' }
-//   | { type: 'FETCH_SUCCESS'; payload: IGitHubUserSearchResponse }
-//   | { type: 'GOT_RESULTS' }
-
-// type pagerState = {
-//   query?: string
-//   isLoading?: boolean
-//   itemTotal?: number
-//   currentPage?: number
-//   pageSize: number
-//   items: IGitHubUserSearchResponse['items'] | null
-// }
-
-// function paginationReducer(state: pagerState, action: Action): pagerState {
-//   switch (action.type) {
-//     case 'INCR_PAGE':
-//     case 'DECR_PAGE':
-//       return state
-//     case 'FETCH_START':
-//       return {
-//         ...state,
-//         isLoading: true,
-//         items: null,
-//       }
-//     case 'FETCH_SUCCESS':
-//       console.log(action.payload)
-//       return {
-//         ...state,
-//         itemTotal: action.payload.total_count,
-//         items: action.payload.items,
-//         isLoading: false,
-//       }
-//     case 'CHANGE_QUERY':
-//       return {
-//         ...state,
-//         query: action.payload,
-//       }
-//     default:
-//       throw new Error()
-//   }
-// }
+function selectPaginationProps(state: UserSearchState) {
+  return {
+    total: state.total || 0,
+    current: state.page,
+    isDisabledPrev: false,
+    isDisabledNext: false,
+  }
+}

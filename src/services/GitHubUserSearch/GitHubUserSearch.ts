@@ -10,7 +10,6 @@ import {
 import { IGitHubUserSearchResponse } from '../../types'
 
 // private module constants
-const PAGE_SIZE = 10
 const DEBOUNCE_TIME = 250
 const MIN_SEARCH_CHAR_LENGTH = 3
 
