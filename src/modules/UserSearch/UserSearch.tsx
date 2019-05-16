@@ -10,6 +10,8 @@ import {
 import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
 import Pagination from '../../components/Pagination'
+import { GitHubUserSearch } from '../../services'
+import { IGitHubUserSearchResponse } from '../../types'
 
 // private module constants
 const PAGE_SIZE = 10
@@ -32,56 +34,45 @@ const UserSearch: React.FC<UserSearchProps> = () => {
   const [data, setData] = useState<UserSearchProps['data'] | null>(null)
   const [pagination, dispatch] = useReducer(paginationReducer, {
     pageSize: PAGE_SIZE,
+    items: null,
   })
 
-  const [_query$] = useState(new BehaviorSubject(''))
-  useEffect(() => {
-    const subscription = _query$.subscribe(setQuery)
-    const service = _query$
-      .pipe(
-        tap(val => dispatch({ type: 'CHANGE_QUERY', payload: val })),
-        filter(q => q.length >= MIN_SEARCH_CHAR_LENGTH || !q.length),
-        debounceTime(DEBOUNCE_TIME),
-        distinctUntilChanged(),
-        tap(() => dispatch({ type: 'FETCH_START' })),
-        switchMap(d =>
-          d
-            ? from(
-                search({
-                  query: d,
-                  pageSize: pagination.pageSize,
-                  page: pagination.currentPage,
-                })
-              )
-            : from(Promise.resolve({ items: [] }))
-        ),
-        tap(() => dispatch({ type: 'FETCH_SUCCESS' }))
-        // handle Errors?
-      )
-      .subscribe(res => {
-        // dispatch here
-        setData(res)
+  const [ghus] = useState(() => {
+    return new GitHubUserSearch()
+      .next(NEXT => {
+        console.log({ NEXT })
+        dispatch({ type: 'FETCH_START' })
       })
-    return () => {
-      subscription.unsubscribe()
-      service.unsubscribe()
-    }
-  }, [])
+      .error(ERR => console.log({ ERR }))
+      .success(VAL => {
+        console.log({ VAL })
+        dispatch({ type: 'FETCH_SUCCESS', payload: VAL })
+      })
+      .init()
+    // return () => ghus.destroy()
+  })
 
   return (
     <div>
       <BasicUserSearchForm
-        inputValue={query}
+        inputValue={pagination.q}
         isLoading={pagination.isLoading}
-        onInputChange={event => _query$.next(event.target.value)}
+        onInputChange={event => {
+          ghus.fetch({
+            query: event.target.value,
+            size: pagination.pageSize,
+            page: 1,
+          })
+        }}
       />
       <p>{pagination.q}</p>
-      {data && data.items && (
-        <Fragment>
-          <UserList isLoading={isLoading} values={data.items} />
-          <Pagination isLoading={isLoading} total={pagination.itemTotal} />
-        </Fragment>
-      )}
+      {/* {data && data.items && ( */}
+      <Fragment>
+        {/* <UserList isLoading={isLoading} values={data.items} /> */}
+        <UserList isLoading={isLoading} values={pagination.items} />
+        <Pagination isLoading={isLoading} total={pagination.itemTotal} />
+      </Fragment>
+      {/* )} */}
     </div>
   )
 }
@@ -111,7 +102,7 @@ type Action =
   | { type: 'DECR_PAGE' }
   | { type: 'CHANGE_QUERY'; payload: string }
   | { type: 'FETCH_START' }
-  | { type: 'FETCH_SUCCESS' }
+  | { type: 'FETCH_SUCCESS'; payload: IGitHubUserSearchResponse }
   | { type: 'GOT_RESULTS' }
 
 type pagerState = {
@@ -120,9 +111,10 @@ type pagerState = {
   itemTotal?: number
   currentPage?: number
   pageSize: number
+  items: IGitHubUserSearchResponse['items'] | null
 }
 
-function paginationReducer(state: pagerState, action: Action) {
+function paginationReducer(state: pagerState, action: Action): pagerState {
   switch (action.type) {
     case 'INCR_PAGE':
     case 'DECR_PAGE':
@@ -133,8 +125,11 @@ function paginationReducer(state: pagerState, action: Action) {
         isLoading: true,
       }
     case 'FETCH_SUCCESS':
+      console.log(action.payload)
       return {
         ...state,
+        itemTotal: action.payload.total_count,
+        items: action.payload.items,
         isLoading: false,
       }
     case 'CHANGE_QUERY':

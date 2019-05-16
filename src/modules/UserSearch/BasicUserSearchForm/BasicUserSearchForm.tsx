@@ -1,4 +1,5 @@
 import React from 'react'
+import cn from 'classnames'
 import { Button, Input } from '../../../components'
 
 export type BasicUserSearchFormProps<T = {}> = React.FormHTMLAttributes<
@@ -13,9 +14,10 @@ const BasicUserSearchForm: React.FC<BasicUserSearchFormProps> = ({
   onSubmit,
   inputValue,
   onInputChange,
+  className,
 }) => {
   return (
-    <form className="form-inline" onSubmit={onSubmit}>
+    <form className={cn(className, 'form-inline')} onSubmit={onSubmit}>
       <div className="form-group">
         <label className="mr-2" htmlFor="username-search-input">
           Username

@@ -19,3 +19,9 @@ export interface IGitHubUser {
   site_admin: boolean
   score: number
 }
+
+export interface IGitHubUserSearchResponse {
+  total_count: number
+  incomplete_results: boolean
+  items: IGitHubUser[]
+}
