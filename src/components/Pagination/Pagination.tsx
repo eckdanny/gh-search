@@ -22,10 +22,7 @@ const Pagination: React.FC<PagintionProps> = ({
   onClickPrev,
   onClickNext,
 }) => {
-  if (!size || !total) {
-    console.log({ size, total })
-    return null
-  }
+  if (!size || !total) return null
   return (
     <nav className={cn(Styles.nav)} aria-label="pagination">
       <ul className={cn(Styles['pagination'])}>

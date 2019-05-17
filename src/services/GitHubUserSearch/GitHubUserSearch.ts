@@ -1,5 +1,7 @@
-import { Subject, from } from 'rxjs'
+import { Subject, from, of } from 'rxjs'
+import { ajax } from 'rxjs/ajax'
 import {
+  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -8,9 +10,6 @@ import {
   tap,
 } from 'rxjs/operators'
 import { IGitHubUserSearchResponse } from '../../types'
-
-const DEBOUNCE_TIME = 250
-const MIN_SEARCH_CHAR_LENGTH = 3
 
 type GitHubUserServiceRequest = {
   query: string
@@ -21,43 +20,59 @@ type GitHubUserServiceRequest = {
   onError?: (err: any) => void
 }
 
-const noop = () => {}
+type GitHubUserSearchServiceKwargs = {
+  debounce?: number
+  minLength?: number
+}
 
 class GitHubUserSearchService {
   private subject$ = new Subject<GitHubUserServiceRequest>()
+  private DEBOUNCE_TIME: number
+  private MIN_SEARCH_CHAR_LENGTH: number
 
-  init(initialValue?: GitHubUserServiceRequest) {
+  constructor({
+    debounce = 250,
+    minLength = 3,
+  }: GitHubUserSearchServiceKwargs = {}) {
+    this.DEBOUNCE_TIME = debounce
+    this.MIN_SEARCH_CHAR_LENGTH = minLength
+    this.init()
+  }
+
+  init() {
     this.subject$
       .pipe(
-        filter(({ query }) => filterQueryByMinLength(query)),
-        debounceTime(DEBOUNCE_TIME),
-        distinctUntilChanged(),
-        // map(d => ({ ...d, page: 1 })),
+        filter(({ query }) => minLength(query, this.MIN_SEARCH_CHAR_LENGTH)),
+        debounceTime(this.DEBOUNCE_TIME),
+        distinctUntilChanged((prev, curr) => {
+          return (
+            prev.page === curr.page &&
+            prev.size === curr.size &&
+            curr.query === prev.query
+          )
+        }),
         tap(d => d.onStart && d.onStart(d)),
         switchMap(req => {
-          // TODO: handle non-HTTP 200's here
-          return req.query
-            ? from(search(req)).pipe(
-                map(res => {
-                  return {
-                    ...req,
-                    res,
-                  }
-                })
-              )
-            : from(Promise.resolve({ items: null, page: 1, size: 10 })).pipe(
-                map(res => {
-                  return {
-                    ...req,
-                    res,
-                  }
-                })
-              )
-        }),
-        tap(d => d.onSuccess && d.onSuccess(d.res))
+          if (!req.query) {
+            return from(Promise.resolve({ ...req, res: { items: null } }))
+          }
+          return ajax
+            .getJSON(
+              `https://api.github.com/search/users` +
+                `?q=${req.query}` +
+                `&page=${req.page}` +
+                `&per_page=${req.size}`
+            )
+            .pipe(
+              map(res => ({ ...req, res })),
+              catchError(err => {
+                req.onError && req.onError(err)
+                return of(err)
+              })
+            )
+        })
       )
-      .subscribe()
-    if (initialValue) this.subject$.next(initialValue)
+      .subscribe(d => d.onSuccess && d.onSuccess(d.res))
     return this
   }
 
@@ -76,14 +91,6 @@ export default GitHubUserSearchService
 // Helpers
 //
 
-function filterQueryByMinLength(query: string) {
-  return query.length >= MIN_SEARCH_CHAR_LENGTH || !query.length
-}
-
-async function search(args: GitHubUserServiceRequest) {
-  const { query, page, size } = args
-  const data = await fetch(
-    `https://api.github.com/search/users?q=${query}&page=${page}&per_page=${size}`
-  )
-  return await data.json()
+function minLength(query: string, minLength: number) {
+  return query.length >= minLength || !query.length
 }

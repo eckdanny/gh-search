@@ -1,4 +1,5 @@
 import { IGitHubUserSearchResponse } from '../../types'
+import { PagintionProps } from '../../components/Pagination/Pagination'
 
 // State
 
@@ -9,7 +10,7 @@ export interface UserSearchState {
   isLoading: boolean
   total: number | null
   items: IGitHubUserSearchResponse['items'] | null
-  error: string | null
+  error: string | any | null
 }
 
 // Types
@@ -94,6 +95,15 @@ export function fetchError(err: any): UserSearchActionType {
   }
 }
 
+export const userSearchActions = {
+  incrementPage,
+  decrementPage,
+  changeQuery,
+  fetchStart,
+  fetchError,
+  fetchSuccess,
+}
+
 // Reducer
 
 export function userSearchReducer(
@@ -107,29 +117,46 @@ export function userSearchReducer(
       return { ...state, page: state.page - 1 }
     case CHANGE_QUERY:
       return { ...state, query: action.payload, page: 1 }
-    case FETCH: {
+    case FETCH:
       if (action.error) {
         return {
           ...state,
+          items: null,
+          page: 1,
           isLoading: false,
-          error: 'Oh nos... something bad happened!',
+          error: action.payload,
+        }
+      } else {
+        switch (action.meta) {
+          case START:
+            return { ...state, isLoading: true, error: false }
+          case SUCCESS:
+            return {
+              ...state,
+              isLoading: false,
+              error: false,
+              total: action.payload.total_count,
+              items: action.payload.items,
+            }
+          default:
+            return state
         }
       }
-      switch (action.meta) {
-        case START: {
-          return { ...state, isLoading: true }
-        }
-        case SUCCESS: {
-          return {
-            ...state,
-            isLoading: false,
-            total: action.payload.total_count,
-            items: action.payload.items,
-          }
-        }
-      }
-    }
     default:
       return state
+  }
+}
+
+// Selectors
+
+export function selectPaginationProps(state: UserSearchState): PagintionProps {
+  return {
+    total: state.total as number,
+    current: state.page,
+    size: state.size,
+    isDisabledPrev: state.page < 2 || state.isLoading,
+    isDisabledNext:
+      !state.total || state.page >= Math.ceil(state.total / state.size),
+    isLoading: state.isLoading,
   }
 }
