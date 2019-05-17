@@ -33,6 +33,9 @@ const UserSearch: React.FC<UserSearchProps> = () => {
       })
   )
 
+  // not needed here
+  // const serviceInstanceRef = useRef(searchService)
+
   useEffect(() => {
     searchService.fetch({
       query: state.query,
