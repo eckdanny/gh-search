@@ -122,6 +122,7 @@ export function userSearchReducer(
         return {
           ...state,
           items: null,
+          total: 0,
           page: 1,
           isLoading: false,
           error: action.payload,
@@ -154,9 +155,11 @@ export function selectPaginationProps(state: UserSearchState): PagintionProps {
     total: state.total as number,
     current: state.page,
     size: state.size,
-    isDisabledPrev: state.page < 2 || state.isLoading,
+    isDisabledPrev: state.page < 2 || state.isLoading || state.error,
     isDisabledNext:
-      !state.total || state.page >= Math.ceil(state.total / state.size),
+      !state.total ||
+      state.page >= Math.ceil(state.total / state.size) ||
+      state.error,
     isLoading: state.isLoading,
   }
 }
