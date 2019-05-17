@@ -1,0 +1,17 @@
+@import '../../../scss/base';
+
+$spacer: map-get($spacers, 3);
+
+.UserList {
+  padding: $spacer 0;
+  & > * {
+    margin-top: $spacer;
+    padding-bottom: $spacer;
+    border-bottom: $border-width solid $border-color;
+    &:first-child {
+      padding-top: $spacer;
+      margin-top: 0;
+      border-top: $border-width solid $border-color;
+    }
+  }
+}

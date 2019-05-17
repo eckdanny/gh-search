@@ -1,0 +1,14 @@
+@import '../../scss/base';
+@import '~bootstrap/scss/pagination';
+
+.nav {
+  display: flex;
+  justify-content: space-around;
+}
+
+.page-current-info {
+  @extend .page-link;
+  &:hover {
+    background-color: $pagination-bg;
+  }
+}

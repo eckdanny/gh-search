@@ -1,0 +1,9 @@
+@import '../../scss/base';
+
+.Avatar {
+  border-radius: $border-radius-sm;
+  display: inline-block;
+  line-height: 1;
+  overflow: hidden;
+  vertical-align: middle;
+}

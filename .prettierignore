@@ -3,3 +3,5 @@
 .vscode
 public
 tsconfig.json
+src/scss/_variables.scss
+
