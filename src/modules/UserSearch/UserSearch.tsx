@@ -1,7 +1,7 @@
 import React, { useState, useReducer, useEffect } from 'react'
 import BasicUserSearchForm from './BasicUserSearchForm'
 import UserList from './UserList'
-import { Pagination, Spinner } from '../../components'
+import { Alert, Pagination, Spinner } from '../../components'
 import { GitHubUserSearch } from '../../services'
 import {
   userSearchReducer,
@@ -46,6 +46,7 @@ const UserSearch: React.FC<UserSearchProps> = () => {
   // hack: ensure subject$.complete() in case not GC'd
   useEffect(() => () => searchService.destroy(), [])
 
+  console.log(state.error)
   return (
     <div>
       <BasicUserSearchForm
@@ -64,13 +65,12 @@ const UserSearch: React.FC<UserSearchProps> = () => {
         total={state.total as number}
       />
       {state.error && (
-        <div className="alert alert-danger" role="alert">
-          A simple danger alert with{' '}
-          <a href="#" className="alert-link">
-            an example link
-          </a>
-          . Give it a click if you like.
-        </div>
+        <Alert>
+          <p>{state.error.response.message}</p>
+          <p>
+            See <a href={state.error.response.documentation_url}>error help</a>.
+          </p>
+        </Alert>
       )}
       <Pagination
         {...selectPaginationProps(state)}
