@@ -2,7 +2,7 @@ import React from 'react'
 import { Alert } from '../../components'
 
 type RxJSGitHubHttpErr = {
-  staus: number
+  status: number
   response: {
     message: string
     documentation_url: string
@@ -14,12 +14,17 @@ export type ErrorAlertProps<T = {}> = React.HTMLAttributes<HTMLDivElement> & {
 } & T
 
 const ErrorAlert: React.FC<ErrorAlertProps> = props => {
-  if (props.error.status === 403) {
+  const { error } = props
+  if ((error as RxJSGitHubHttpErr).status === 403) {
     return (
       <Alert>
-        <p>{props.error.response.message}</p>
+        <p>{(error as RxJSGitHubHttpErr).response.message}</p>
         <p>
-          See <a href={props.error.response.documentation_url}>error help</a>.
+          See{' '}
+          <a href={(error as RxJSGitHubHttpErr).response.documentation_url}>
+            error help
+          </a>
+          .
         </p>
       </Alert>
     )
