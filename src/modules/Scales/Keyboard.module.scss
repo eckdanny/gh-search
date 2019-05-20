@@ -1,0 +1,13 @@
+@import '../../scss/base';
+
+.Keyboard {
+  display: flex;
+  min-height: 15vh;
+}
+
+.Key {
+  flex: 1;
+  & + .Key {
+    margin-left: map-get($spacers, 1);
+  }
+}

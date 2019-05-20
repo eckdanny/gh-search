@@ -1,0 +1,10 @@
+@import '../../scss/base';
+@import '~bootstrap/scss/buttons';
+@import '~bootstrap/scss/button-group';
+@import '~bootstrap/scss/forms';
+
+.RootButtonBar {
+  > .btn-group + .btn-group {
+    margin-left: map-get($spacers, 1);
+  }
+}
